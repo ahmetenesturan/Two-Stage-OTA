@@ -42,11 +42,43 @@ N 180 500 320 500 {lab=#net1}
 N 180 480 180 500 {lab=#net1}
 N 320 500 470 500 {lab=#net1}
 N 470 480 470 500 {lab=#net1}
+N 1080 50 1080 70 {lab=GND}
+N 1080 -130 1080 -110 {lab=VDD2}
+N 960 50 980 50 {lab=Vb3}
+N 960 30 980 30 {lab=Vb2}
+N 960 10 980 10 {lab=Vb1}
+N 960 -20 980 -20 {lab=IN_N2}
+N 960 -40 980 -40 {lab=IN_P2}
+N 1200 -40 1220 -40 {lab=OUT_P2}
+N 1200 -20 1220 -20 {lab=OUT_N2}
+N 1220 -20 1220 30 {lab=OUT_N2}
+N 1220 90 1220 110 {lab=GND}
+N 1220 -40 1340 -40 {lab=OUT_P2}
+N 1340 -40 1340 30 {lab=OUT_P2}
+N 1340 90 1340 110 {lab=GND}
+N 970 280 970 300 {lab=GND}
+N 970 180 970 220 {lab=VDD2}
+N 1110 480 1110 500 {lab=#net2}
+N 1110 240 1110 280 {lab=IN_P2}
+N 1400 240 1400 280 {lab=IN_N2}
+N 1110 390 1110 420 {lab=IN_P2}
+N 1110 280 1110 330 {lab=IN_P2}
+N 1250 520 1250 550 {lab=#net2}
+N 1250 610 1250 630 {lab=GND}
+N 1400 480 1400 500 {lab=#net2}
+N 1400 390 1400 420 {lab=IN_N2}
+N 1400 280 1400 330 {lab=IN_N2}
+N 1110 330 1110 390 {lab=IN_P2}
+N 1400 330 1400 390 {lab=IN_N2}
+N 1110 520 1250 520 {lab=#net2}
+N 1110 500 1110 520 {lab=#net2}
+N 1250 520 1400 520 {lab=#net2}
+N 1400 500 1400 520 {lab=#net2}
 C {devices/launcher.sym} 650 220 0 0 {name=h15
 descr="Annotate OP" 
 tclcommand="set show_hidden_texts 1; xschem annotate_op"
 }
-C {vsource.sym} 500 -10 0 0 {name=V1 value="dc 1.8 ac \{vdd_ac\}" savecurrent=true}
+C {vsource.sym} 500 -10 0 0 {name=V1 value="dc 1.8 ac 0" savecurrent=true}
 C {gnd.sym} 500 40 0 0 {name=l2 lab=GND}
 C {lab_pin.sym} 500 -80 0 0 {name=p16 sig_type=std_logic lab=VDD}
 C {gnd.sym} 60 80 0 0 {name=l3 lab=GND}
@@ -58,10 +90,8 @@ C {gnd.sym} 710 40 0 0 {name=l5 lab=GND}
 C {lab_pin.sym} 710 -80 0 0 {name=p19 sig_type=std_logic lab=Vb2}
 C {vsource.sym} 780 -10 0 0 {name=V5 value=1.1 savecurrent=true}
 C {gnd.sym} 780 40 0 0 {name=l6 lab=GND}
-C {code_shown.sym} -370 -20 0 0 {name=spice only_toplevel=false value="
+C {code_shown.sym} -240 200 0 0 {name=spice only_toplevel=false value="
 .temp 25
-.param in_ac = 0.5
-.param vdd_ac = 0
 
 .control
 option savecurrents
@@ -72,9 +102,10 @@ option noinit
 save all
 
 ac dec 10 1k 10G
-plot db(mag(out_p))
-*wrdata out_gain.txt db(mag(out_p))
-wrdata supply_gain.txt db(mag(out_p))
+let input_gain = db(mag(out_p))
+let supply_gain = db(mag(out_p2))
+let psrr = input_gain - supply_gain
+plot psrr
 
 .endc"}
 C {devices/launcher.sym} 660 150 0 0 {name=h2
@@ -83,10 +114,9 @@ tclcommand="xschem save; xschem netlist; xschem simulate"
 }
 C {lab_pin.sym} 780 -80 0 0 {name=p24 sig_type=std_logic lab=Vb3}
 C {sky130_fd_pr/corner.sym} 620 310 0 0 {name=CORNER only_toplevel=true corner=tt}
-C {vsource.sym} 180 430 0 0 {name=V6 value="ac \{in_ac\}" savecurrent=true}
+C {vsource.sym} 180 430 0 0 {name=V6 value="ac 0.5" savecurrent=true}
 C {lab_pin.sym} 180 220 0 0 {name=p21 sig_type=std_logic lab=IN_P}
-C {lab_pin.sym} 470 220 0 0 {name=p22 sig_type=std_logic lab=IN_N
-value="dc 0.9 ac -0.5 pulse(0 \{vin\}/(-2) 1u 1n 1n 10n 10u)"}
+C {lab_pin.sym} 470 220 0 0 {name=p22 sig_type=std_logic lab=IN_N}
 C {gnd.sym} 320 610 0 0 {name=l1 lab=GND}
 C {two_stage_amplifier.sym} -20 -20 0 0 {name=x1}
 C {lab_pin.sym} 60 -120 0 0 {name=p1 sig_type=std_logic lab=VDD}
@@ -94,8 +124,7 @@ C {lab_pin.sym} -60 20 0 0 {name=p2 sig_type=std_logic lab=Vb1}
 C {lab_pin.sym} -60 40 0 0 {name=p3 sig_type=std_logic lab=Vb2}
 C {lab_pin.sym} -60 60 0 0 {name=p4 sig_type=std_logic lab=Vb3}
 C {lab_pin.sym} -60 -30 0 0 {name=p5 sig_type=std_logic lab=IN_P}
-C {lab_pin.sym} -60 -10 0 0 {name=p6 sig_type=std_logic lab=IN_N
-value="dc 0.9 ac -0.5 pulse(0 \{vin\}/(-2) 1u 1n 1n 10n 10u)"}
+C {lab_pin.sym} -60 -10 0 0 {name=p6 sig_type=std_logic lab=IN_N}
 C {lab_pin.sym} 320 -30 0 1 {name=p7 sig_type=std_logic lab=OUT_P}
 C {lab_pin.sym} 200 -10 0 1 {name=p8 sig_type=std_logic lab=OUT_N}
 C {capa.sym} 200 70 0 0 {name=C3
@@ -111,4 +140,35 @@ footprint=1206
 device="ceramic capacitor"}
 C {gnd.sym} 320 120 0 0 {name=l11 lab=GND}
 C {vsource.sym} 320 560 0 0 {name=V7 value=0.9 savecurrent=true}
-C {vsource.sym} 470 430 2 0 {name=V2 value="ac \{in_ac\}" savecurrent=true}
+C {vsource.sym} 470 430 2 0 {name=V2 value="ac 0.5" savecurrent=true}
+C {gnd.sym} 1080 70 0 0 {name=l7 lab=GND}
+C {two_stage_amplifier.sym} 1000 -30 0 0 {name=x2}
+C {lab_pin.sym} 1080 -130 0 0 {name=p9 sig_type=std_logic lab=VDD2}
+C {lab_pin.sym} 960 10 0 0 {name=p10 sig_type=std_logic lab=Vb1}
+C {lab_pin.sym} 960 30 0 0 {name=p11 sig_type=std_logic lab=Vb2}
+C {lab_pin.sym} 960 50 0 0 {name=p12 sig_type=std_logic lab=Vb3}
+C {lab_pin.sym} 960 -40 0 0 {name=p13 sig_type=std_logic lab=IN_P2}
+C {lab_pin.sym} 960 -20 0 0 {name=p14 sig_type=std_logic lab=IN_N2}
+C {lab_pin.sym} 1340 -40 0 1 {name=p15 sig_type=std_logic lab=OUT_P2}
+C {lab_pin.sym} 1220 -20 0 1 {name=p17 sig_type=std_logic lab=OUT_N2}
+C {capa.sym} 1220 60 0 0 {name=C1
+m=1
+value=5p
+footprint=1206
+device="ceramic capacitor"}
+C {gnd.sym} 1220 110 0 0 {name=l8 lab=GND}
+C {capa.sym} 1340 60 0 0 {name=C2
+m=1
+value=5p
+footprint=1206
+device="ceramic capacitor"}
+C {gnd.sym} 1340 110 0 0 {name=l9 lab=GND}
+C {vsource.sym} 970 250 0 0 {name=V8 value="dc 1.8 ac 1" savecurrent=true}
+C {gnd.sym} 970 300 0 0 {name=l12 lab=GND}
+C {lab_pin.sym} 970 180 0 0 {name=p20 sig_type=std_logic lab=VDD2}
+C {vsource.sym} 1110 450 0 0 {name=V9 value="ac 0" savecurrent=true}
+C {lab_pin.sym} 1110 240 0 0 {name=p23 sig_type=std_logic lab=IN_P2}
+C {lab_pin.sym} 1400 240 0 0 {name=p25 sig_type=std_logic lab=IN_N2}
+C {gnd.sym} 1250 630 0 0 {name=l13 lab=GND}
+C {vsource.sym} 1250 580 0 0 {name=V10 value=0.9 savecurrent=true}
+C {vsource.sym} 1400 450 2 0 {name=V11 value="ac 0" savecurrent=true}
